@@ -27,10 +27,9 @@
         body {
             font-family: 'Rajdhani', sans-serif;
             background-color: #020617;
-            overflow: hidden;
         }
 
-        /* Leaflet Customization */
+        /* Leaflet Harita Ozellestirmesi */
         .leaflet-container {
             background: #020617 !important;
             width: 100%;
@@ -65,7 +64,7 @@
             background: #334155 !important;
         }
 
-        /* Scrollbar Customization */
+        /* Kaydirma Cubugu */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -78,7 +77,7 @@
             border-radius: 10px;
         }
 
-        /* Animations */
+        /* Scanline Efekti (Cizgiler Kaldirildi) */
         @keyframes scanline {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100%); }
@@ -90,27 +89,22 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(236, 29, 36, 0.05) 51%);
-            background-size: 100% 4px;
             pointer-events: none;
             z-index: 999;
         }
     </style>
 </head>
-<body>
+<body class="lg:overflow-hidden overflow-y-auto">
     <div id="root"></div>
 
     <script type="text/babel">
-        // --- ICONS (SVG Components) ---
         const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
         const Globe = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
         const Rocket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>;
         const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
         const Loader2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>;
 
-        // --- MCU DATA (ENGLISH) ---
         const CHARACTERS = [
-            // --- EARTH SECTOR (FICTIONAL NATIONS & KEY LOCATIONS) ---
             { id: 3, name: "Shuri (Black Panther)", location: "Birnin Zana, Wakanda", coords: [2.5, 29.0], lastSeen: "Black Panther: Wakanda Forever", status: "Active (Queen)", realm: "Earth" },
             { id: 31, name: "M'Baku", location: "Jabari Land, Wakanda", coords: [3.0, 28.5], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King's Council)", realm: "Earth" },
             { id: 32, name: "King Valkyrie", location: "New Asgard (Tønsberg), Norway", coords: [59.2676, 10.4076], lastSeen: "The Marvels", status: "Active (Ruler)", realm: "Earth" },
@@ -119,8 +113,6 @@
             { id: 35, name: "Xu Xialing", location: "Ten Rings HQ, China", coords: [29.0, 110.0], lastSeen: "Shang-Chi and the Legend of the Ten Rings", status: "Active (Leader)", realm: "Earth" },
             { id: 36, name: "Madripoor Safehouse", location: "Lowtown, Madripoor", coords: [1.3521, 103.8198], lastSeen: "The Falcon and the Winter Soldier", status: "Criminal Hub", realm: "Earth" },
             { id: 22, name: "Namor", location: "Talokan (Atlantic Ocean)", coords: [25.0000, -45.0000], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King)", realm: "Earth" },
-
-            // --- EARTH SECTOR (HEROES) ---
             { id: 1, name: "Peter Parker (Spider-Man)", location: "Queens, New York, USA", coords: [40.7282, -73.7949], lastSeen: "Spider-Man: No Way Home", status: "Active (Solo)", realm: "Earth" },
             { id: 2, name: "Sam Wilson (Captain America)", location: "Washington D.C., USA", coords: [38.9072, -77.0369], lastSeen: "Captain America: Brave New World", status: "Active", realm: "Earth" },
             { id: 6, name: "Scott Lang (Ant-Man)", location: "San Francisco, USA", coords: [37.7749, -122.4194], lastSeen: "Ant-Man and the Wasp: Quantumania", status: "Active", realm: "Earth" },
@@ -138,8 +130,6 @@
             { id: 21, name: "Bucky Barnes", location: "Delacroix, Louisiana, USA", coords: [29.7563, -89.7842], lastSeen: "The Falcon and the Winter Soldier", status: "Active (Thunderbolts)", realm: "Earth" },
             { id: 23, name: "Yelena Belova", location: "Unknown (Ops)", coords: [48.8566, 2.3522], lastSeen: "Hawkeye", status: "Active (Thunderbolts)", realm: "Earth" },
             { id: 24, name: "Riri Williams (Ironheart)", location: "MIT, Boston, USA", coords: [42.3601, -71.0942], lastSeen: "Black Panther: Wakanda Forever", status: "Active", realm: "Earth" },
-
-            // --- COSMIC & MULTIVERSE SECTOR ---
             { id: 4, name: "Thor Odinson", location: "Deep Space", coords: null, lastSeen: "Thor: Love and Thunder", status: "Active (Traveling)", realm: "Space" },
             { id: 5, name: "Loki (God of Stories)", location: "End of Time (Yggdrasil)", coords: null, lastSeen: "Loki Season 2", status: "Keeper of Time", realm: "Multiverse" },
             { id: 9, name: "Stephen Strange", location: "Dark Dimension", coords: null, lastSeen: "Doctor Strange in the Multiverse of Madness", status: "On Mission (w/ Clea)", realm: "Multiverse" },
@@ -161,7 +151,6 @@
             const leafletMap = React.useRef(null);
             const markersGroup = React.useRef(null);
 
-            // Wait for Leaflet to load
             React.useEffect(() => {
                 const checkLeaflet = setInterval(() => {
                     if (window.L && window.L.map) {
@@ -172,12 +161,10 @@
                 return () => clearInterval(checkLeaflet);
             }, []);
 
-            // Initialize Map
             React.useEffect(() => {
                 if (isMapReady && mapRef.current && !leafletMap.current && window.L) {
                     try {
                         const L = window.L;
-                        
                         leafletMap.current = L.map(mapRef.current, {
                             zoomControl: false,
                             attributionControl: false,
@@ -203,13 +190,8 @@
                         console.error("Map initialization error:", error);
                     }
                 }
-
-                return () => {
-                    // Cleanup usually handled by browser on refresh, but good practice
-                };
             }, [isMapReady]);
 
-            // Handle Resize
             React.useEffect(() => {
                 const handleResize = () => {
                     if (leafletMap.current) {
@@ -220,7 +202,6 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
 
-            // Update Markers
             React.useEffect(() => {
                 if (isMapReady && leafletMap.current && markersGroup.current && window.L) {
                     const L = window.L;
@@ -252,7 +233,6 @@
                 setSelectedChar(char);
                 if (char.coords && leafletMap.current) {
                     leafletMap.current.flyTo(char.coords, 6, { duration: 1.5 });
-                    
                     if (window.innerWidth < 1024) {
                         mapRef.current.scrollIntoView({ behavior: 'smooth' });
                     }
@@ -263,12 +243,10 @@
             const otherRealmCharacters = CHARACTERS.filter(c => c.realm !== "Earth");
 
             return (
-                <div className="flex flex-col min-h-screen lg:h-screen bg-[#0a0a0a] text-slate-100 font-sans selection:bg-red-600/30 overflow-hidden scanline">
-                    {/* Header - Marvel Style */}
-                    <header className="border-b border-red-600/30 bg-[#121212]/95 backdrop-blur-md z-[1000] shrink-0 sticky top-0 lg:static">
+                <div className="flex flex-col min-h-screen lg:h-screen bg-[#0a0a0a] text-slate-100 font-sans selection:bg-red-600/30 lg:overflow-hidden scanline">
+                    <header className="bg-[#121212]/95 backdrop-blur-md z-[1000] shrink-0 sticky top-0 lg:static">
                         <div className="w-full px-6 h-16 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                {/* Marvel-esque Logo */}
                                 <div className="bg-[#ec1d24] text-white px-2 py-1 select-none shadow-[0_0_15px_rgba(236,29,36,0.4)]">
                                     <span className="text-xl font-black tracking-tighter leading-none block transform scale-y-110">MARVEL</span>
                                 </div>
@@ -294,16 +272,13 @@
                         </div>
                     </header>
 
-                    {/* Main Content Container */}
-                    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                        
-                        {/* Left Panel: Earth Sector */}
+                    <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden overflow-visible">
                         <aside className="w-full lg:w-80 bg-[#121212] border-r border-white/5 flex flex-col shrink-0 h-auto z-10 relative">
                             <div className="p-4 flex-1 overflow-hidden flex flex-col">
                                 <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
                                     <Globe className="w-3 h-3 text-red-500" /> Earth Sector
                                 </h2>
-                                <div className="space-y-1 overflow-y-auto custom-scrollbar pr-1 flex-1 max-h-48 lg:max-h-none">
+                                <div className="space-y-1 lg:overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[200px] lg:max-h-none">
                                     {earthCharacters.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(char => (
                                         <button
                                             key={char.id}
@@ -327,8 +302,7 @@
                             </div>
                         </aside>
 
-                        {/* Center: Map Area */}
-                        <main className="relative bg-[#050505] flex-1 min-h-[400px]">
+                        <main className="relative bg-[#050505] flex-1 min-h-[500px] lg:min-h-0">
                             {!isMapReady && (
                                 <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0a0a0a] text-red-600">
                                     <Loader2 className="w-10 h-10 animate-spin mb-4" />
@@ -338,7 +312,6 @@
 
                             <div ref={mapRef} className="absolute inset-0 z-0 w-full h-full block" />
                             
-                            {/* Detail Card Overlay */}
                             {selectedChar && (
                                 <div className="absolute top-6 right-6 lg:right-auto lg:left-6 lg:w-80 z-[1000] animate-in fade-in zoom-in-95 duration-200">
                                     <div className="bg-[#121212]/95 backdrop-blur-xl border-l-4 border-red-600 rounded-r-xl p-6 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.8)]">
@@ -381,13 +354,12 @@
                             )}
                         </main>
 
-                        {/* Right Panel: Cosmic & Multiverse Sector (Vertical) */}
                         <aside className="w-full lg:w-80 bg-[#121212] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col shrink-0 h-auto z-10 relative">
                             <div className="p-4 flex-1 overflow-hidden flex flex-col">
                                 <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
                                     <Rocket className="w-3 h-3 text-red-500" /> Cosmic & Multiverse
                                 </h2>
-                                <div className="space-y-1 overflow-y-auto custom-scrollbar pr-1 flex-1 max-h-48 lg:max-h-none">
+                                <div className="space-y-1 lg:overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[200px] lg:max-h-none">
                                     {otherRealmCharacters.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(char => (
                                         <div key={char.id} className="p-3 bg-white/5 hover:bg-white/10 border-l-2 border-transparent hover:border-red-500 transition-all group rounded-sm mb-1">
                                             <div className="flex justify-between items-start mb-1">
@@ -398,7 +370,7 @@
                                             </div>
                                             <p className="text-[9px] text-slate-400 truncate mb-2">{char.location}</p>
                                             <div className="flex items-center gap-1.5 text-[9px] text-slate-500">
-                                                <span className={`w-1.5 h-1.5 rounded-full ${char.status.includes('Deceased') || char.status.includes('MIA') ? 'bg-red-500' : 'bg-green-500'} shadow-[0_0_5px_currentColor]`} />
+                                                {/* Nokta gostergesi kaldirildi */}
                                                 <span className="truncate uppercase">{char.status}</span>
                                             </div>
                                         </div>
@@ -406,7 +378,6 @@
                                 </div>
                             </div>
                         </aside>
-
                     </div>
                 </div>
             );
