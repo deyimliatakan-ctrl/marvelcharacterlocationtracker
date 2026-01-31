@@ -110,7 +110,7 @@
 
         // --- MCU DATA (ENGLISH) ---
         const CHARACTERS = [
-            // --- EARTH SECTOR (FICTIONAL NATIONS & KEY LOCATIONS) ---
+            // --- EARTH (FICTIONAL NATIONS & KEY LOCATIONS) ---
             { id: 3, name: "Shuri (Black Panther)", location: "Birnin Zana, Wakanda", coords: [2.5, 29.0], lastSeen: "Black Panther: Wakanda Forever", status: "Active (Queen)", realm: "Earth" },
             { id: 31, name: "M'Baku", location: "Jabari Land, Wakanda", coords: [3.0, 28.5], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King's Council)", realm: "Earth" },
             { id: 32, name: "King Valkyrie", location: "New Asgard (Tønsberg), Norway", coords: [59.2676, 10.4076], lastSeen: "The Marvels", status: "Active (Ruler)", realm: "Earth" },
@@ -120,7 +120,7 @@
             { id: 36, name: "Madripoor Safehouse", location: "Lowtown, Madripoor", coords: [1.3521, 103.8198], lastSeen: "The Falcon and the Winter Soldier", status: "Criminal Hub", realm: "Earth" },
             { id: 22, name: "Namor", location: "Talokan (Atlantic Ocean)", coords: [25.0000, -45.0000], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King)", realm: "Earth" },
 
-            // --- EARTH SECTOR (HEROES) ---
+            // --- EARTH (HEROES) ---
             { id: 1, name: "Peter Parker (Spider-Man)", location: "Queens, New York, USA", coords: [40.7282, -73.7949], lastSeen: "Spider-Man: No Way Home", status: "Active (Solo)", realm: "Earth" },
             { id: 2, name: "Sam Wilson (Captain America)", location: "Washington D.C., USA", coords: [38.9072, -77.0369], lastSeen: "Captain America: Brave New World", status: "Active", realm: "Earth" },
             { id: 6, name: "Scott Lang (Ant-Man)", location: "San Francisco, USA", coords: [37.7749, -122.4194], lastSeen: "Ant-Man and the Wasp: Quantumania", status: "Active", realm: "Earth" },
@@ -301,7 +301,7 @@
                         <aside className="w-full lg:w-80 bg-[#121212] border-r border-white/5 flex flex-col shrink-0 h-auto z-10 relative">
                             <div className="p-4 flex-1 overflow-hidden flex flex-col">
                                 <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
-                                    <Globe className="w-3 h-3 text-red-500" /> Earth Sector
+                                    <Globe className="w-3 h-3 text-red-500" /> Earth 
                                 </h2>
                                 <div className="space-y-1 overflow-y-auto custom-scrollbar pr-1 flex-1 max-h-48 lg:max-h-none">
                                     {earthCharacters.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(char => (
@@ -418,3 +418,4 @@
 </body>
 
 </html>
+
