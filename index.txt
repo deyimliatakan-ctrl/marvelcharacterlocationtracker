@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.H.I.E.L.D. Asset Tracker</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (JSX Compiler) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #020617;
+            /* overflow: hidden; -> Kaldırıldı, Tailwind ile responsive yönetilecek */
+        }
+
+        /* Leaflet Customization */
+        .leaflet-container {
+            background: #020617 !important;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .custom-div-icon {
+            background: transparent;
+            border: none;
+        }
+        .leaflet-popup-content-wrapper {
+            background: #0f172a;
+            color: white;
+            border: 1px solid rgba(236, 29, 36, 0.5);
+            border-radius: 4px;
+        }
+        .leaflet-popup-tip {
+            background: #0f172a;
+        }
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+            margin-bottom: 24px !important;
+            margin-right: 24px !important;
+        }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+            background: #1e293b !important;
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
+            background: #334155 !important;
+        }
+
+        /* Scrollbar Customization */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        /* Animations */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body class="lg:overflow-hidden overflow-y-auto">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- ICONS (SVG Components) ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Globe = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
+        const Rocket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>;
+        const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+        const Loader2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>;
+
+        // --- MCU DATA ---
+        const CHARACTERS = [
+            { id: 3, name: "Shuri (Black Panther)", location: "Birnin Zana, Wakanda", coords: [2.5, 29.0], lastSeen: "Black Panther: Wakanda Forever", status: "Active (Queen)", realm: "Earth" },
+            { id: 31, name: "M'Baku", location: "Jabari Land, Wakanda", coords: [3.0, 28.5], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King's Council)", realm: "Earth" },
+            { id: 32, name: "King Valkyrie", location: "New Asgard (Tønsberg), Norway", coords: [59.2676, 10.4076], lastSeen: "The Marvels", status: "Active (Ruler)", realm: "Earth" },
+            { id: 33, name: "Korg", location: "New Asgard, Norway", coords: [59.2700, 10.4100], lastSeen: "Thor: Love and Thunder", status: "Active", realm: "Earth" },
+            { id: 34, name: "Sokovia Memorial", location: "Novi Grad, Sokovia (Ruins)", coords: [44.8125, 20.4612], lastSeen: "Age of Ultron / Falcon & Winter Soldier", status: "Restricted Zone", realm: "Earth" },
+            { id: 35, name: "Xu Xialing", location: "Ten Rings HQ, China", coords: [29.0, 110.0], lastSeen: "Shang-Chi and the Legend of the Ten Rings", status: "Active (Leader)", realm: "Earth" },
+            { id: 36, name: "Madripoor Safehouse", location: "Lowtown, Madripoor", coords: [1.3521, 103.8198], lastSeen: "The Falcon and the Winter Soldier", status: "Criminal Hub", realm: "Earth" },
+            { id: 22, name: "Namor", location: "Talokan (Atlantic Ocean)", coords: [25.0000, -45.0000], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King)", realm: "Earth" },
+            { id: 1, name: "Peter Parker (Spider-Man)", location: "Queens, New York, USA", coords: [40.7282, -73.7949], lastSeen: "Spider-Man: No Way Home", status: "Active (Solo)", realm: "Earth" },
+            { id: 2, name: "Sam Wilson (Captain America)", location: "Washington D.C., USA", coords: [38.9072, -77.0369], lastSeen: "Captain America: Brave New World", status: "Active", realm: "Earth" },
+            { id: 6, name: "Scott Lang (Ant-Man)", location: "San Francisco, USA", coords: [37.7749, -122.4194], lastSeen: "Ant-Man and the Wasp: Quantumania", status: "Active", realm: "Earth" },
+            { id: 7, name: "Shang-Chi", location: "San Francisco, USA", coords: [37.8000, -122.4500], lastSeen: "Shang-Chi and the Legend of the Ten Rings", status: "Active", realm: "Earth" },
+            { id: 8, name: "Steven Grant (Moon Knight)", location: "London, UK", coords: [51.5074, -0.1278], lastSeen: "Moon Knight", status: "Active (Pact Bound)", realm: "Earth" },
+            { id: 10, name: "Wanda Maximoff", location: "Mt. Wundagore (Unknown)", coords: [45.0, 25.0], lastSeen: "Doctor Strange in the Multiverse of Madness", status: "MIA / Deceased?", realm: "Earth" },
+            { id: 13, name: "Clint Barton (Hawkeye)", location: "Iowa Farm, USA", coords: [41.6611, -91.5302], lastSeen: "Hawkeye", status: "Retired", realm: "Earth" },
+            { id: 14, name: "Kate Bishop (Hawkeye)", location: "Manhattan, New York, USA", coords: [40.7831, -73.9712], lastSeen: "Hawkeye", status: "Active (Young Avenger)", realm: "Earth" },
+            { id: 15, name: "Bruce Banner (Hulk)", location: "Remote Lab, Mexico", coords: [23.6345, -102.5528], lastSeen: "She-Hulk: Attorney at Law", status: "Active", realm: "Earth" },
+            { id: 16, name: "Jennifer Walters (She-Hulk)", location: "Los Angeles, USA", coords: [34.0522, -118.2437], lastSeen: "She-Hulk: Attorney at Law", status: "Active (Civilian)", realm: "Earth" },
+            { id: 17, name: "Matt Murdock (Daredevil)", location: "Hell's Kitchen, NY, USA", coords: [40.7644, -73.9937], lastSeen: "She-Hulk / Echo", status: "Active", realm: "Earth" },
+            { id: 18, name: "Kamala Khan (Ms. Marvel)", location: "Jersey City, NJ, USA", coords: [40.7178, -74.0431], lastSeen: "The Marvels", status: "Active (Young Avenger)", realm: "Earth" },
+            { id: 19, name: "Peter Quill (Star-Lord)", location: "St. Charles, Missouri, USA", coords: [38.7881, -90.4974], lastSeen: "Guardians of the Galaxy Vol. 3", status: "Retired (On Earth)", realm: "Earth" },
+            { id: 20, name: "Agatha Harkness", location: "Westview, NJ, USA", coords: [40.3573, -74.6652], lastSeen: "Agatha All Along", status: "Active (Ghost)", realm: "Earth" },
+            { id: 21, name: "Bucky Barnes", location: "Delacroix, Louisiana, USA", coords: [29.7563, -89.7842], lastSeen: "The Falcon and the Winter Soldier", status: "Active (Thunderbolts)", realm: "Earth" },
+            { id: 23, name: "Yelena Belova", location: "Unknown (Ops)", coords: [48.8566, 2.3522], lastSeen: "Hawkeye", status: "Active (Thunderbolts)", realm: "Earth" },
+            { id: 24, name: "Riri Williams (Ironheart)", location: "MIT, Boston, USA", coords: [42.3601, -71.0942], lastSeen: "Black Panther: Wakanda Forever", status: "Active", realm: "Earth" },
+            { id: 4, name: "Thor Odinson", location: "Deep Space", coords: null, lastSeen: "Thor: Love and Thunder", status: "Active (Traveling)", realm: "Space" },
+            { id: 5, name: "Loki (God of Stories)", location: "End of Time (Yggdrasil)", coords: null, lastSeen: "Loki Season 2", status: "Keeper of Time", realm: "Multiverse" },
+            { id: 9, name: "Stephen Strange", location: "Dark Dimension", coords: null, lastSeen: "Doctor Strange in the Multiverse of Madness", status: "On Mission (w/ Clea)", realm: "Multiverse" },
+            { id: 11, name: "Monica Rambeau", location: "Alternate X-Men Universe", coords: null, lastSeen: "The Marvels", status: "Stranded", realm: "Multiverse" },
+            { id: 12, name: "Rocket Raccoon", location: "Knowhere", coords: null, lastSeen: "Guardians of the Galaxy Vol. 3", status: "Active (Leader)", realm: "Space" },
+            { id: 25, name: "Captain Marvel", location: "Deep Space", coords: null, lastSeen: "The Marvels", status: "Active", realm: "Space" },
+            { id: 26, name: "Nick Fury", location: "S.A.B.E.R. Space Station", coords: null, lastSeen: "The Marvels", status: "Active (Director)", realm: "Space" },
+            { id: 27, name: "Nebula", location: "Knowhere", coords: null, lastSeen: "Guardians of the Galaxy Vol. 3", status: "Active (City Admin)", realm: "Space" },
+            { id: 28, name: "Drax the Destroyer", location: "Knowhere", coords: null, lastSeen: "Guardians of the Galaxy Vol. 3", status: "Active (Dad)", realm: "Space" },
+            { id: 29, name: "The Watcher", location: "Nexus of All Realities", coords: null, lastSeen: "What If...?", status: "Observing", realm: "Multiverse" },
+            { id: 30, name: "Eternals (Arishem)", location: "World Forge", coords: null, lastSeen: "Eternals", status: "Captured (Judgment)", realm: "Space" }
+        ];
+
+        function App() {
+            const [selectedChar, setSelectedChar] = React.useState(null);
+            const [searchQuery, setSearchQuery] = React.useState("");
+            const [isMapReady, setIsMapReady] = React.useState(false);
+            const mapRef = React.useRef(null);
+            const leafletMap = React.useRef(null);
+            const markersGroup = React.useRef(null);
+
+            React.useEffect(() => {
+                const checkLeaflet = setInterval(() => {
+                    if (window.L && window.L.map) {
+                        setIsMapReady(true);
+                        clearInterval(checkLeaflet);
+                    }
+                }, 100);
+                return () => clearInterval(checkLeaflet);
+            }, []);
+
+            React.useEffect(() => {
+                if (isMapReady && mapRef.current && !leafletMap.current && window.L) {
+                    try {
+                        const L = window.L;
+                        leafletMap.current = L.map(mapRef.current, {
+                            zoomControl: false,
+                            attributionControl: false,
+                            center: [20, 0],
+                            zoom: 2,
+                            minZoom: 2,
+                            maxBounds: [[-90, -180], [90, 180]]
+                        });
+
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                            maxZoom: 19,
+                            subdomains: 'abcd'
+                        }).addTo(leafletMap.current);
+
+                        markersGroup.current = L.layerGroup().addTo(leafletMap.current);
+                        L.control.zoom({ position: 'bottomright' }).addTo(leafletMap.current);
+
+                        setTimeout(() => {
+                            if (leafletMap.current) leafletMap.current.invalidateSize();
+                        }, 200);
+
+                    } catch (error) {
+                        console.error("Map initialization error:", error);
+                    }
+                }
+            }, [isMapReady]);
+
+            React.useEffect(() => {
+                const handleResize = () => {
+                    if (leafletMap.current) {
+                        leafletMap.current.invalidateSize();
+                    }
+                };
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            React.useEffect(() => {
+                if (isMapReady && leafletMap.current && markersGroup.current && window.L) {
+                    const L = window.L;
+                    markersGroup.current.clearLayers();
+
+                    CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
+                        const marker = L.marker(char.coords, {
+                            icon: L.divIcon({
+                                className: 'custom-div-icon',
+                                html: `
+                                    <div class="relative group cursor-pointer" style="width:30px; height:30px;">
+                                        <div class="bg-red-600 p-1.5 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(220,38,38,0.5)] transform transition-transform hover:scale-110 flex items-center justify-center w-full h-full">
+                                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                        </div>
+                                    </div>
+                                `,
+                                iconSize: [30, 30],
+                                iconAnchor: [15, 15]
+                            })
+                        });
+
+                        marker.on('click', () => handleCharSelect(char));
+                        marker.addTo(markersGroup.current);
+                    });
+                }
+            }, [isMapReady, searchQuery]);
+
+            const handleCharSelect = (char) => {
+                setSelectedChar(char);
+                if (char.coords && leafletMap.current) {
+                    leafletMap.current.flyTo(char.coords, 6, { duration: 1.5 });
+                    if (window.innerWidth < 1024) {
+                        mapRef.current.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            };
+
+            const earthCharacters = CHARACTERS.filter(c => c.realm === "Earth");
+            const otherRealmCharacters = CHARACTERS.filter(c => c.realm !== "Earth");
+
+            return (
+                <div className="flex flex-col min-h-screen lg:h-screen bg-[#0a0a0a] text-slate-100 font-sans selection:bg-red-600/30 lg:overflow-hidden scanline">
+                    <header className="bg-[#121212]/95 backdrop-blur-md z-[1000] shrink-0 sticky top-0 lg:static">
+                        <div className="w-full px-6 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-[#ec1d24] text-white px-2 py-1 select-none shadow-[0_0_15px_rgba(236,29,36,0.4)]">
+                                    <span className="text-xl font-black tracking-tighter leading-none block transform scale-y-110">MARVEL</span>
+                                </div>
+                                <div className="hidden md:block w-[1px] h-8 bg-red-600/30 mx-1"></div>
+                                <div>
+                                    <h1 className="text-lg font-bold tracking-widest uppercase text-white hidden md:block">CHARACTER LOCATION <span className="text-[#ec1d24]">TRACKING</span></h1>
+                                    <h1 className="text-lg font-black tracking-tighter uppercase text-white md:hidden">TRACKER</h1>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-6">
+                                <div className="hidden md:flex items-center gap-3 bg-black/40 px-4 py-2 rounded-sm border border-white/10 ring-1 ring-red-600/20 focus-within:ring-red-600/50 transition-all">
+                                    <Search className="w-4 h-4 text-slate-500" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="SEARCH HERO..." 
+                                        className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-slate-600 uppercase tracking-wide text-white"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Container - overflow-hidden sadece desktopta */}
+                    <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden overflow-visible">
+                        <aside className="w-full lg:w-80 bg-[#121212] border-r border-white/5 flex flex-col shrink-0 h-auto z-10 relative">
+                            <div className="p-4 flex-1 overflow-hidden flex flex-col">
+                                <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
+                                    <Globe className="w-3 h-3 text-red-500" /> Earth Sector
+                                </h2>
+                                {/* Liste mobilde kısıtlı yükseklikten kurtarıldı */}
+                                <div className="space-y-1 lg:overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[200px] lg:max-h-none">
+                                    {earthCharacters.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(char => (
+                                        <button
+                                            key={char.id}
+                                            onClick={() => handleCharSelect(char)}
+                                            className={`w-full text-left p-3 rounded-sm transition-all border-l-2 group ${
+                                                selectedChar?.id === char.id 
+                                                ? 'bg-red-600/10 border-red-600 border-t-0 border-r-0 border-b-0' 
+                                                : 'bg-white/5 border-transparent hover:bg-white/10'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <span className={`font-bold text-xs uppercase tracking-wide truncate ${selectedChar?.id === char.id ? 'text-red-400' : 'text-slate-300'}`}>
+                                                    {char.name}
+                                                </span>
+                                                <MapPin className={`w-3 h-3 ${selectedChar?.id === char.id ? 'text-red-500' : 'text-slate-600'}`} />
+                                            </div>
+                                            <span className="text-[9px] text-slate-500 mt-1 block font-medium uppercase tracking-tight truncate">{char.location}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </aside>
+
+                        {/* Harita alanı mobilde minimum yükseklik kazandı */}
+                        <main className="relative bg-[#050505] flex-1 min-h-[500px] lg:min-h-0">
+                            {!isMapReady && (
+                                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0a0a0a] text-red-600">
+                                    <Loader2 className="w-10 h-10 animate-spin mb-4" />
+                                    <p className="text-xs uppercase tracking-widest font-bold">Accessing Database...</p>
+                                </div>
+                            )}
+
+                            <div ref={mapRef} className="absolute inset-0 z-0 w-full h-full block" />
+                            
+                            {selectedChar && (
+                                <div className="absolute top-6 right-6 lg:right-auto lg:left-6 lg:w-80 z-[1000] animate-in fade-in zoom-in-95 duration-200">
+                                    <div className="bg-[#121212]/95 backdrop-blur-xl border-l-4 border-red-600 rounded-r-xl p-6 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.8)]">
+                                        <button 
+                                            onClick={() => setSelectedChar(null)}
+                                            className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full bg-white/5 text-slate-400 hover:text-white hover:bg-red-600 transition-colors"
+                                        >
+                                            ✕
+                                        </button>
+                                        
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <div className="w-12 h-12 bg-red-600 flex items-center justify-center text-2xl font-black text-white shadow-lg shrink-0 rounded-sm">
+                                                {selectedChar.name[0]}
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-black tracking-tight uppercase text-white leading-tight">{selectedChar.name}</h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider ${selectedChar.status.includes('Deceased') || selectedChar.status.includes('MIA') ? 'bg-slate-800 text-slate-400' : 'bg-green-900/30 text-green-400 border border-green-800/50'}`}>
+                                                        {selectedChar.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="bg-black/40 p-3 rounded-sm border-l-2 border-slate-700">
+                                                <p className="text-[10px] text-red-500 uppercase font-black tracking-widest mb-1 flex items-center gap-1">
+                                                    <MapPin className="w-2.5 h-2.5" /> Location
+                                                </p>
+                                                <p className="text-slate-100 font-bold uppercase text-sm">{selectedChar.location}</p>
+                                            </div>
+                                            
+                                            <div className="bg-black/40 p-3 rounded-sm border-l-2 border-slate-700">
+                                                <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Last Appearance</p>
+                                                <p className="text-slate-300 italic text-xs">"{selectedChar.lastSeen}"</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </main>
+
+                        <aside className="w-full lg:w-80 bg-[#121212] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col shrink-0 h-auto z-10 relative">
+                            <div className="p-4 flex-1 overflow-hidden flex flex-col">
+                                <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
+                                    <Rocket className="w-3 h-3 text-red-500" /> Cosmic & Multiverse
+                                </h2>
+                                <div className="space-y-1 lg:overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-[200px] lg:max-h-none">
+                                    {otherRealmCharacters.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(char => (
+                                        <div key={char.id} className="p-3 bg-white/5 hover:bg-white/10 border-l-2 border-transparent hover:border-red-500 transition-all group rounded-sm mb-1">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <span className="font-bold text-xs text-slate-200 truncate pr-2 uppercase">{char.name}</span>
+                                                <span className="text-[8px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded-sm uppercase shrink-0">
+                                                    {char.realm}
+                                                </span>
+                                            </div>
+                                            <p className="text-[9px] text-slate-400 truncate mb-2">{char.location}</p>
+                                            <div className="flex items-center gap-1.5 text-[9px] text-slate-500">
+                                                <span className="truncate uppercase">{char.status}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
