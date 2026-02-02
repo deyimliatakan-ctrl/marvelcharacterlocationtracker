@@ -249,6 +249,28 @@
                     const L = window.L;
                     markersGroup.current.clearLayers();
 
+                    // Koordinat çakışmalarını takip etmek için geçici obje
+                    const usedCoords = {};
+
+                    CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
+                        const isSelected = selectedChar?.id === char.id;
+                        
+                        let lat = char.coords[0];
+                        let lng = char.coords[1];
+                        const coordKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+
+                        // Çarpışma Algılama ve Kaydırma (Coordinate Jittering)
+                        if (usedCoords[coordKey]) {
+                            const angle = usedCoords[coordKey] * (Math.PI / 4); // 45 derece aralıkla spiral kayma
+                            const offset = 0.0006; // Yaklaşık 60-70 metrelik bir kayma (tıklanabilir olması için yeterli)
+                            lat += Math.cos(angle) * offset;
+                            lng += Math.sin(angle) * offset;
+                            usedCoords[coordKey]++;
+                        } else {
+                            usedCoords[coordKey] = 1;
+                        }
+
+                    
                     CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
                         const isSelected = selectedChar?.id === char.id;
                         
@@ -444,6 +466,7 @@
 </body>
 
 </html>
+
 
 
 
