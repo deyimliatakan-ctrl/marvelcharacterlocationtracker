@@ -274,18 +274,7 @@ const getDisplayCoords = (char, allChars) => {
         char.coords[0] + Math.cos(angle) * offset,
         char.coords[1] + Math.sin(angle) * offset
     ];
-};
-                    // useEffect içinde işaretçileri oluştururken:
-const displayCoords = getDisplayCoords(char, CHARACTERS);
-
-const marker = L.marker(displayCoords, {
-    icon: L.divIcon({
-        // ... ikon HTML içeriği ...
-    }),
-    zIndexOffset: isSelected ? 2000 : 0 // Seçili olanın öne çıkması için
-});
-
-                    
+ 
                     CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
                         const isSelected = selectedChar?.id === char.id;
                         
@@ -481,6 +470,7 @@ const marker = L.marker(displayCoords, {
 </body>
 
 </html>
+
 
 
 
