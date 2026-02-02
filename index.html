@@ -248,32 +248,6 @@
                 if (isMapReady && leafletMap.current && markersGroup.current) {
                     const L = window.L;
                     markersGroup.current.clearLayers();
-
-                 // Koordinat Kaydırma Yardımcı Fonksiyonu
-const getDisplayCoords = (char, allChars) => {
-    if (!char.coords) return null;
-    
-    // Aynı koordinata sahip tüm karakterleri bul
-    const sameLocChars = allChars.filter(c => 
-        c.coords && 
-        c.coords[0] === char.coords[0] && 
-        c.coords[1] === char.coords[1]
-    );
-    
-    // Eğer sadece bir karakter varsa orijinal koordinatı döndür
-    if (sameLocChars.length <= 1) return char.coords;
-
-    // Karakterin bu listedeki sırasını bul
-    const index = sameLocChars.findIndex(c => c.id === char.id);
-    if (index === 0) return char.coords; // İlk karakter merkezde kalsın
-
-    // Diğerlerini açısal olarak dağıt
-    const angle = (index * (Math.PI * 2)) / (sameLocChars.length - 1);
-    const offset = 0.0012; // Sapma miktarı (tıklanabilir mesafe)
-    return [
-        char.coords[0] + Math.cos(angle) * offset,
-        char.coords[1] + Math.sin(angle) * offset
-    ];
  
                     CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
                         const isSelected = selectedChar?.id === char.id;
@@ -470,6 +444,7 @@ const getDisplayCoords = (char, allChars) => {
 </body>
 
 </html>
+
 
 
 
