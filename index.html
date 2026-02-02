@@ -315,8 +315,6 @@ const marker = L.marker(displayCoords, {
             const handleCharSelect = (char) => {
                 setSelectedChar(char);
                 if (char.coords && leafletMap.current) {
-                    // Orijinal koordinat değil, kaydırılmış koordinatı bul
-        const displayCoords = getDisplayCoords(char, CHARACTERS);
                   const currentZoom = leafletMap.current.getZoom();
                     // Eğer kullanıcı zaten 6'dan daha fazla yakınlaşmışsa mevcut zoom'u koru.
                     // Uzaktaysa otomatik olarak 6 seviyesine yakınlaş.
@@ -483,6 +481,7 @@ const marker = L.marker(displayCoords, {
 </body>
 
 </html>
+
 
 
 
