@@ -192,6 +192,20 @@
             const leafletMap = React.useRef(null);
             const markersGroup = React.useRef(null);
 
+   // Koordinat Bazlı Gruplama Yardımcısı
+            const getOffsetCoords = (coords, index, total) => {
+                if (!coords || total <= 1) return coords;
+                
+                // Küçük bir yarıçap (Derece cinsinden, zoom seviyesine göre yaklaşık 50-100 metre)
+                const radius = 0.005; 
+                const angle = (index / total) * (2 * Math.PI);
+                
+                return [
+                    coords[0] + radius * Math.sin(angle),
+                    coords[1] + radius * Math.cos(angle)
+                ];
+            };
+            
             React.useEffect(() => {
                 const checkLeaflet = setInterval(() => {
                     if (window.L && window.L.map) {
@@ -243,16 +257,34 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
             
-           // HARİTA İŞARETÇİLERİNİ GÜNCELLE
+            // HARİTA İŞARETÇİLERİNİ GÜNCELLE (Overlap Fix Dahil)
             React.useEffect(() => {
                 if (isMapReady && leafletMap.current && markersGroup.current) {
                     const L = window.L;
                     markersGroup.current.clearLayers();
- 
-                    CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
+                    
+                    const filtered = CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                    
+                    // Koordinat çakışmalarını hesapla
+                    const coordCounts = {};
+                    filtered.forEach(c => {
+                        const key = c.coords.join(',');
+                        coordCounts[key] = (coordCounts[key] || 0) + 1;
+                    });
+
+                    const currentIndices = {};
+
+                    filtered.forEach(char => {
                         const isSelected = selectedChar?.id === char.id;
+                        const key = char.coords.join(',');
+                        const totalAtThisLocation = coordCounts[key];
+                        const currentIndex = currentIndices[key] || 0;
+                        currentIndices[key] = currentIndex + 1;
+
+                        // Eğer çakışma varsa ofsetli koordinat kullan
+                        const finalCoords = getOffsetCoords(char.coords, currentIndex, totalAtThisLocation);
                         
-                        const marker = L.marker(char.coords, {
+                        const marker = L.marker(finalCoords, {
                             icon: L.divIcon({
                                 className: 'custom-div-icon',
                                 html: `
@@ -281,7 +313,7 @@
                   const currentZoom = leafletMap.current.getZoom();
                     // Eğer kullanıcı zaten 6'dan daha fazla yakınlaşmışsa mevcut zoom'u koru.
                     // Uzaktaysa otomatik olarak 6 seviyesine yakınlaş.
-                    const targetZoom = currentZoom > 6 ? currentZoom : 6;
+                    const targetZoom = currentZoom > 12 ? currentZoom : 12;
                     
                     leafletMap.current.flyTo(char.coords, targetZoom, { 
                         duration: 1.5,
@@ -444,6 +476,7 @@
 </body>
 
 </html>
+
 
 
 
