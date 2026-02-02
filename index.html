@@ -223,7 +223,8 @@
                 window.addEventListener('resize', handleResize);
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
-
+            
+            // İşaretçileri Güncelle (Seçim değişince de tetiklenir)
             React.useEffect(() => {
                 if (isMapReady && leafletMap.current && markersGroup.current && window.L) {
                     const L = window.L;
@@ -243,13 +244,14 @@
                                 iconSize: [30, 30],
                                 iconAnchor: [15, 15]
                             })
+                            zIndexOffset: isSelected ? 1000 : 0 // Seçili olanı öne çıkar
                         });
 
                         marker.on('click', () => handleCharSelect(char));
                         marker.addTo(markersGroup.current);
                     });
                 }
-            }, [isMapReady, searchQuery]);
+            }, [isMapReady, searchQuery, selectedChar]);
 
             const handleCharSelect = (char) => {
                 setSelectedChar(char);
@@ -411,6 +413,7 @@
 </body>
 
 </html>
+
 
 
 
