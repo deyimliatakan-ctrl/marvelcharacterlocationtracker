@@ -40,6 +40,25 @@
             background: transparent;
             border: none;
         }
+           /* RADAR DALGALANMA EFEKTİ (Seçili Karakter İçin) */
+        @keyframes radar-pulse {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(2.8); opacity: 0; }
+        }
+        .selected-pulse {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(236, 29, 36, 0.4);
+            border: 2px solid #ec1d24;
+            border-radius: 50%;
+            animation: radar-pulse 1.5s ease-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .leaflet-popup-content-wrapper {
             background: #0f172a;
             color: white;
@@ -224,26 +243,29 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
             
-            // İşaretçileri Güncelle (Seçim değişince de tetiklenir)
+           // HARİTA İŞARETÇİLERİNİ GÜNCELLE
             React.useEffect(() => {
-                if (isMapReady && leafletMap.current && markersGroup.current && window.L) {
+                if (isMapReady && leafletMap.current && markersGroup.current) {
                     const L = window.L;
                     markersGroup.current.clearLayers();
 
                     CHARACTERS.filter(char => char.coords && char.name.toLowerCase().includes(searchQuery.toLowerCase())).forEach(char => {
+                        const isSelected = selectedChar?.id === char.id;
+                        
                         const marker = L.marker(char.coords, {
                             icon: L.divIcon({
                                 className: 'custom-div-icon',
                                 html: `
-                                    <div class="relative group cursor-pointer" style="width:30px; height:30px;">
-                                        <div class="bg-red-600 p-1.5 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(220,38,38,0.5)] transform transition-transform hover:scale-110 flex items-center justify-center w-full h-full">
-                                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    <div class="relative flex items-center justify-center" style="width:36px; height:36px;">
+                                        ${isSelected ? '<div class="selected-pulse"></div>' : ''}
+                                        <div class="${isSelected ? 'bg-white scale-125 shadow-[0_0_15px_white]' : 'bg-red-600 shadow-lg'} p-1.5 rounded-full border-2 border-slate-900 transition-all duration-300 relative z-10">
+                                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${isSelected ? '#ec1d24' : 'white'}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                                         </div>
                                     </div>
                                 `,
-                                iconSize: [30, 30],
-                                iconAnchor: [15, 15]
-                            })
+                                iconSize: [36, 36],
+                                iconAnchor: [18, 18]
+                            }),
                             zIndexOffset: isSelected ? 1000 : 0 // Seçili olanı öne çıkar
                         });
 
@@ -413,6 +435,7 @@
 </body>
 
 </html>
+
 
 
 
