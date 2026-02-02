@@ -105,8 +105,8 @@
         const Loader2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>;
 
         const CHARACTERS = [
-            { id: 3, name: "Shuri (Black Panther)", location: "Birnin Zana, Wakanda", coords: [2.5, 29.0], lastSeen: "Black Panther: Wakanda Forever", status: "Active (Queen)", realm: "Earth" },
-            { id: 31, name: "M'Baku", location: "Jabari Land, Wakanda", coords: [3.0, 28.5], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King's Council)", realm: "Earth" },
+            { id: 3, name: "Shuri (Black Panther)", location: "Birnin Zana, Wakanda", coords: [2.5, 29.0], lastSeen: "Black Panther: Wakanda Forever", status: "Active", realm: "Earth" },
+            { id: 31, name: "M'Baku", location: "Jabari Land, Wakanda", coords: [3.0, 28.5], lastSeen: "Black Panther: Wakanda Forever", status: "Active (King)", realm: "Earth" },
             { id: 32, name: "King Valkyrie", location: "New Asgard (Tønsberg), Norway", coords: [59.2676, 10.4076], lastSeen: "The Marvels", status: "Active (Ruler)", realm: "Earth" },
             { id: 33, name: "Korg", location: "New Asgard, Norway", coords: [59.2700, 10.4100], lastSeen: "Thor: Love and Thunder", status: "Active", realm: "Earth" },
             { id: 34, name: "Sokovia Memorial", location: "Novi Grad, Sokovia (Ruins)", coords: [44.8125, 20.4612], lastSeen: "Age of Ultron / Falcon & Winter Soldier", status: "Restricted Zone", realm: "Earth" },
@@ -120,16 +120,16 @@
             { id: 8, name: "Steven Grant (Moon Knight)", location: "London, UK", coords: [51.5074, -0.1278], lastSeen: "Moon Knight", status: "Active (Pact Bound)", realm: "Earth" },
             { id: 10, name: "Wanda Maximoff", location: "Mt. Wundagore (Unknown)", coords: [45.0, 25.0], lastSeen: "Doctor Strange in the Multiverse of Madness", status: "MIA / Deceased?", realm: "Earth" },
             { id: 13, name: "Clint Barton (Hawkeye)", location: "Iowa Farm, USA", coords: [41.6611, -91.5302], lastSeen: "Hawkeye", status: "Retired", realm: "Earth" },
-            { id: 14, name: "Kate Bishop (Hawkeye)", location: "Manhattan, New York, USA", coords: [40.7831, -73.9712], lastSeen: "Hawkeye", status: "Active (Young Avenger)", realm: "Earth" },
+            { id: 14, name: "Kate Bishop (Hawkeye)", location: "Manhattan, New York, USA", coords: [40.7831, -73.9712], lastSeen: "The Marvels", status: "Active (Young Avengers)", realm: "Earth" },
             { id: 15, name: "Bruce Banner (Hulk)", location: "Remote Lab, Mexico", coords: [23.6345, -102.5528], lastSeen: "She-Hulk: Attorney at Law", status: "Active", realm: "Earth" },
             { id: 16, name: "Jennifer Walters (She-Hulk)", location: "Los Angeles, USA", coords: [34.0522, -118.2437], lastSeen: "She-Hulk: Attorney at Law", status: "Active (Civilian)", realm: "Earth" },
-            { id: 17, name: "Matt Murdock (Daredevil)", location: "Hell's Kitchen, NY, USA", coords: [40.7644, -73.9937], lastSeen: "She-Hulk / Echo", status: "Active", realm: "Earth" },
-            { id: 18, name: "Kamala Khan (Ms. Marvel)", location: "Jersey City, NJ, USA", coords: [40.7178, -74.0431], lastSeen: "The Marvels", status: "Active (Young Avenger)", realm: "Earth" },
+            { id: 17, name: "Matt Murdock (Daredevil)", location: "Hell's Kitchen, NY, USA", coords: [40.7644, -73.9937], lastSeen: "Daredevil: Born Again", status: "Active", realm: "Earth" },
+            { id: 18, name: "Kamala Khan (Ms. Marvel)", location: "Jersey City, NJ, USA", coords: [40.7178, -74.0431], lastSeen: "The Marvels", status: "Active (Young Avengers)", realm: "Earth" },
             { id: 19, name: "Peter Quill (Star-Lord)", location: "St. Charles, Missouri, USA", coords: [38.7881, -90.4974], lastSeen: "Guardians of the Galaxy Vol. 3", status: "Retired (On Earth)", realm: "Earth" },
             { id: 20, name: "Agatha Harkness", location: "Westview, NJ, USA", coords: [40.3573, -74.6652], lastSeen: "Agatha All Along", status: "Active (Ghost)", realm: "Earth" },
-            { id: 21, name: "Bucky Barnes", location: "Delacroix, Louisiana, USA", coords: [29.7563, -89.7842], lastSeen: "The Falcon and the Winter Soldier", status: "Active (Thunderbolts)", realm: "Earth" },
-            { id: 23, name: "Yelena Belova", location: "Unknown (Ops)", coords: [48.8566, 2.3522], lastSeen: "Hawkeye", status: "Active (Thunderbolts)", realm: "Earth" },
-            { id: 24, name: "Riri Williams (Ironheart)", location: "MIT, Boston, USA", coords: [42.3601, -71.0942], lastSeen: "Black Panther: Wakanda Forever", status: "Active", realm: "Earth" },
+            { id: 21, name: "Bucky Barnes", location: "Watchtower, New York, USA", coords: [40.7537, -73.9768], lastSeen: "Thunderbolts*", status: "Active (New Avengers)", realm: "Earth" },
+            { id: 23, name: "Yelena Belova", location: "Watchtower, New York, USA", coords: [40.7537, -73.9768], lastSeen: "Thunderbolts*", status: "Active (New Avengers)", realm: "Earth" },
+            { id: 24, name: "Riri Williams (Ironheart)", location: "Chicago, Illinois, USA", coords: [41.9038, -87.7058], lastSeen: "Ironheart", status: "Active", realm: "Earth" },
             { id: 37, name: "Wong", location: "Kamar-Taj, Nepal", coords: [27.7000, 85.3333], lastSeen: "She-Hulk: Attorney at Law", status: "Active", realm: "Earth" },
             { id: 4, name: "Thor Odinson", location: "Deep Space", coords: null, lastSeen: "Thor: Love and Thunder", status: "Active (Traveling)", realm: "Space" },
             { id: 5, name: "Loki (God of Stories)", location: "End of Time (Yggdrasil)", coords: null, lastSeen: "Loki Season 2", status: "Keeper of Time", realm: "Multiverse" },
@@ -390,3 +390,4 @@
 </body>
 
 </html>
+
