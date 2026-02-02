@@ -278,7 +278,16 @@
             const handleCharSelect = (char) => {
                 setSelectedChar(char);
                 if (char.coords && leafletMap.current) {
-                    leafletMap.current.flyTo(char.coords, 6, { duration: 1.5 });
+                  const currentZoom = leafletMap.current.getZoom();
+                    // Eğer kullanıcı zaten 6'dan daha fazla yakınlaşmışsa mevcut zoom'u koru.
+                    // Uzaktaysa otomatik olarak 6 seviyesine yakınlaş.
+                    const targetZoom = currentZoom > 6 ? currentZoom : 6;
+                    
+                    leafletMap.current.flyTo(char.coords, targetZoom, { 
+                        duration: 1.5,
+                        easeLinearity: 0.25 
+                    });
+
                     if (window.innerWidth < 1024) {
                         mapRef.current.scrollIntoView({ behavior: 'smooth' });
                     }
@@ -435,6 +444,7 @@
 </body>
 
 </html>
+
 
 
 
