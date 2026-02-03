@@ -366,7 +366,7 @@
                   const currentZoom = leafletMap.current.getZoom();
                     // Eğer kullanıcı zaten 6'dan daha fazla yakınlaşmışsa mevcut zoom'u koru.
                     // Uzaktaysa otomatik olarak 6 seviyesine yakınlaş.
-                    const targetZoom = currentZoom > 12 ? currentZoom : 12;
+                    const targetZoom = currentZoom > 8 ? currentZoom : 8;
                     
                     leafletMap.current.flyTo(char.coords, targetZoom, { 
                         duration: 1.5,
@@ -529,6 +529,7 @@
 </body>
 
 </html>
+
 
 
 
